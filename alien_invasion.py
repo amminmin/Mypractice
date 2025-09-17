@@ -1,6 +1,7 @@
 import sys
 import pygame
 from settings import Settings 
+from ship import Ship
 
 class AlienInvasion:
     """管理游戏资源和行为的类"""
@@ -15,6 +16,7 @@ class AlienInvasion:
         self.screen = pygame.display.set_mode(
             (self.settings.screen_width, self.settings.screen_height))
         pygame.display.set_caption("Alien Invasion")
+        self.ship = Ship(self)
         
         self.bg_color = (self.settings.bg_color)
     
@@ -22,16 +24,28 @@ class AlienInvasion:
         """开始游戏的主循环"""
         while True:
             # 侦听键盘和鼠标的事件
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    sys.exit()
-            
+            self._check_events()
+            self.ship.update()
             #每次循环时都重绘屏幕
-            self.screen.fill(self.bg_color)
-            
-            # 让最近绘制的屏幕可见
-            pygame.display.flip()
+            self._update_screen()
             self.clock.tick(60)
+        
+    def _check_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RIGHT:
+                    self.ship.moving_right = True
+            elif event.type == pygame.KEYUP:  
+                self.ship.moving_right = False     
+                                    
+    def _update_screen(self):
+        """更新屏幕上的图像，并切换到新屏幕"""
+        self.screen.fill(self.bg_color)
+        self.ship.blitme()
+        # 让最近绘制的屏幕可见
+        pygame.display.flip()
 
 if __name__ == '__main__':
     ai = AlienInvasion()
